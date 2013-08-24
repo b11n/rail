@@ -1,0 +1,8 @@
+[08-Aug-2013 09:22:12] PHP Warning:  Cannot load module 'XCache' because conflicting module 'eAccelerator' is already loaded in Unknown on line 0
+[08-Aug-2013 09:22:12] PHP Warning:  mysql_connect() [<a href='function.mysql-connect'>function.mysql-connect</a>]: Access denied for user 'balan'@'localhost' (using password: YES) in /home/balanara/public_html/rail/core/db.php on line 4
+[08-Aug-2013 09:24:28] PHP Warning:  Cannot load module 'XCache' because conflicting module 'eAccelerator' is already loaded in Unknown on line 0
+[08-Aug-2013 09:24:28] PHP Warning:  mysql_connect() [<a href='function.mysql-connect'>function.mysql-connect</a>]: Access denied for user 'balan'@'localhost' (using password: YES) in /home/balanara/public_html/rail/core/db.php on line 4
+[08-Aug-2013 09:24:37] PHP Warning:  Cannot load module 'XCache' because conflicting module 'eAccelerator' is already loaded in Unknown on line 0
+[08-Aug-2013 09:26:37] PHP Warning:  Cannot load module 'XCache' because conflicting module 'eAccelerator' is already loaded in Unknown on line 0
+[08-Aug-2013 09:26:37] PHP Parse error:  syntax error, unexpected T_ECHO in /home/balanara/public_html/rail/core/db.php on line 27
+[08-Aug-2013 09:26:50] PHP Warning:  Cannot load module 'XCache' because conflicting module 'eAccelerator' is already loaded in Unknown on line 0

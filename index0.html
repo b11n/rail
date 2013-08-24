@@ -1,0 +1,185 @@
+<html>
+<head>
+  <title>Ticket Availability</title>
+ <script src="http://code.jquery.com/jquery.js"></script>
+<script type="text/javascript" src="js/jquery.tokeninput.js"></script>
+<link rel="stylesheet" type="text/css" href="css/token-input.css" />
+<link rel="stylesheet" type="text/css" href="css/token-input-facebook.css" />
+<link rel="stylesheet" href="css/zebra_datepicker.css" type="text/css">
+<link rel="stylesheet" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css" type="text/css">
+
+
+<link rel="stylesheet" href="css/main.css">
+
+
+  </head>
+  <body>
+
+  
+
+
+<div id="results_container">
+<div id="title_text">Enter Details</div><br>
+<div class="input_holder">
+   <span > Source </span> <input type="text" id="src" class="demo-input-facebook-theme"  />
+</div>
+<div class="input_holder">
+   <span > Destin </span> <input type="text"  id="dest" class="demo-input-facebook-theme"  />
+</div>
+<br>
+<br>
+<br>
+<br>
+<br>
+<div id="date_holder">
+  <input type = "text" class="datepicker" />
+</div>
+<br>
+<br>
+<br>
+<br>
+<div id="button_holder">
+<a class="button_example" href="#">Get Trains</a>
+</div>
+<div id="mask"><img src="img/fancybox_loader.gif" /></div>
+
+
+
+</div>
+<div id="results" style="position:relative;margin: 0 auto ;width:100%;">
+  
+<table id="results_table" border=1>
+  <col width="20">  <col width="auto">  <col width="auto">  <col width="auto">
+  <col width="auto">  <col width="50">  <col width="50">  <col width="50"> <col width="auto">
+  <thead>
+    <tr>
+    <th>Train No</th>
+<th>Train Nam</th>
+<th>Origin</th>
+<th>Dep.Time</th>
+<th>Destination</th>
+<th>Arr.Time</th>
+<th>Travel Time</th>
+<th>MTWTFSS</th>
+<th>Class</th>
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+
+</div>
+
+
+
+<div id="footer">
+Please check with the <a href="http://www.trainenquiry.com/">original site </a>for confirmation | Handcrafted In India by <a href="http://www.balanarayanan.in">BN </a>
+</div>
+
+<script type="text/javascript" src="js/zebra_datepicker.js"></script>
+<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>
+<script type="text/javascript">
+
+
+
+
+  var oTable;
+$(document).ready(function () {
+
+ $('input.datepicker').Zebra_DatePicker({direction:[true,60]});
+oTable = $('#results_table').dataTable({width:200});
+
+
+
+
+
+ // Change the suggest to local . Railways takes time
+
+$(".demo-input-facebook-theme").tokenInput("http://balanarayanan.in/rail/suggest_station.php", {
+        theme: "facebook",
+        propertyToSearch: "name",
+        minChars: 3,
+      tokenLimit: 1
+    });
+
+
+ $("body").on('click','.avail',function(){
+
+        console.log($(this).attr("code"));
+ });
+
+
+});
+
+
+
+$(".button_example").click(function(){
+
+ oTable.fnClearTable();
+
+var date = $('.datepicker').val();
+
+var src =  $('#src').tokenInput("get")[0]['code'];
+var dest = $('#dest').tokenInput("get")[0]['code'];
+var day = date.split('-')[2];
+var month = date.split('-')[1];
+
+fetchdetails(src,dest,day,month);
+
+
+});
+
+
+        function fetchdetails(src,dest,day,month){
+
+
+        $.ajax({
+          type:"GET",
+          data:"src="+src+"&dest="+dest+"&day="+day+"&month="+month,
+          url :"availgetter.php",
+          success:function(data){
+
+
+data = JSON.parse(data);
+
+
+            for (var i = data.length - 1; i >= 0; i--) {
+                  
+                  var coach ="";
+                    
+                  for (var j = 14; j< data[i].length ; j++) {
+                    coach += data[i][j]+"-";
+                  };
+
+
+                   $('#results_table').dataTable().fnAddData( [data[i][0],data[i][1],data[i][2],data[i][3],data[i][4],data[i][5],data[i][6],data[i][7]+data[i][8]+data[i][9]+data[i][10]+data[i][11]+data[i][12]+data[i][13],"<button type='button' class='avail' coach ='"+coach+"'code='"+data[i][0]+"' >Get Avail</button>"]);
+
+           
+            };
+
+
+          }
+        
+
+       
+});
+
+    };
+
+
+
+
+function open_in_new_tab(url )
+{
+  var win=window.open(url, '_blank');
+  win.focus();
+}
+
+
+
+
+</script>
+
+
+  </body>
+</html>

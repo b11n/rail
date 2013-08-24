@@ -1,0 +1,391 @@
+<html>
+<head>
+  <title>Ticket Availability</title>
+ <script type="text/javascript" src="js/jquery.min.js"></script>
+
+  <script src='js/nprogress.js'></script>
+  <script>
+  NProgress.start();
+  </script>
+<script type="text/javascript" src="js/jquery.tokeninput.js"></script>
+
+
+<link rel="stylesheet" type="text/css" href="css/token-input.css" />
+<link rel="stylesheet" type="text/css" href="css/token-input-facebook.css" />
+<link rel="stylesheet" href="css/zebra_datepicker.css" type="text/css">
+<link rel="stylesheet" href="css/jquery.dataTables.css" type="text/css">
+<link href='css/nprogress.css' rel='stylesheet' />
+
+
+<link rel="stylesheet" href="css/avail-beta.css">
+
+
+  </head>
+  <body>
+
+  
+<div id="mask" style="display: none;">
+<div id="modal" style="display: none;" >
+<div id ="modal_close"></div>
+<div id="modal_contents"></div>
+</div>
+</div>
+
+<div id="results_container">
+<div id="title_text">Enter Details</div><br>
+<div class="input_holder">
+   <span > Source </span> <input type="text" id="src" class="demo-input-facebook-theme"  />
+</div>
+<div class="input_holder">
+   <span > Destin </span> <input type="text"  id="dest" class="demo-input-facebook-theme"  />
+</div>
+<br>
+<br>
+<br>
+<br>
+<br>
+<div id="date_holder">
+  <input type = "text" class="datepicker" />
+</div>
+<br>
+<br>
+
+<div id="button_holder">
+<a class="button_example" href="#">Get Trains</a>
+</div>
+<br>
+<br>
+<br>
+<br>
+
+
+
+</div>
+<div id="results" style="position:relative;margin: 0 auto ;width:862px;">
+  
+<table id="results_table" border=1>
+  <col width="20">  <col width="auto">  <col width="auto">  <col width="auto">
+  <col width="auto">  <col width="50">  <col width="50">  <col width="50"> <col width="auto">
+  <thead>
+    <tr>
+    <th>Train No</th>
+<th>Train Nam</th>
+<th>Origin</th>
+<th>Dep.Time</th>
+<th>Destination</th>
+<th>Arr.Time</th>
+<th>Travel Time</th>
+<th>MTWTFSS</th>
+<th>Class</th>
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+
+</div>
+
+
+
+<div id="footer">
+Please check with the <a href="http://www.trainenquiry.com/">original site </a>for confirmation | Handcrafted In India by <a href="http://www.balanarayanan.in">BN </a>
+</div>
+
+<script type="text/javascript" src="js/zebra_datepicker.js"></script>
+<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>
+
+
+<script type="text/javascript">
+
+
+var code;
+var dat;
+var classes;
+
+  var oTable;
+$(document).ready(function () {
+
+NProgress.done();
+
+
+ $('input.datepicker').Zebra_DatePicker({direction:[true,60]});
+oTable = $('#results_table').dataTable({width:200});
+
+
+
+
+
+ // Change the suggest to local . Railways takes time
+
+$(".demo-input-facebook-theme").tokenInput("suggest_station.php", {
+        theme: "facebook",
+        propertyToSearch: "name",
+        minChars: 3,
+      tokenLimit: 1
+    });
+
+ $("body").on('click','.prev_date',function(){
+
+
+
+var day = dat.split('-')[2];
+var month = dat.split('-')[1];
+var year = dat.split('-')[0];
+
+    var offset = 1; // Tomorow
+
+    var future_date = new Date(parseInt(year), parseInt(month)-1 , parseInt(day)-offset);
+
+    var tomo =  future_date.getFullYear()+"-"+(parseInt(future_date.getMonth())+1)+"-"+future_date.getDate();
+dat = tomo;
+
+$(".current_date").html(dat);
+
+        var tot = classes.length-1;
+        for(i=0;i< tot ;i++)
+         { 
+          getseats( dat,code,classes[i], $('#src').tokenInput("get")[0]['code'],$('#dest').tokenInput("get")[0]['code'],i+1,tot)
+
+         }
+
+      
+
+ });
+
+
+
+  $("body").on('click','.next_date',function(){
+
+
+
+var day = dat.split('-')[2];
+var month = dat.split('-')[1];
+var year = dat.split('-')[0];
+
+    var offset = 1; // Tomorow
+
+    var future_date = new Date(parseInt(year), parseInt(month)-1 , parseInt(day)+offset);
+
+    var tomo =  future_date.getFullYear()+"-"+(parseInt(future_date.getMonth())+1)+"-"+future_date.getDate();
+dat = tomo;
+
+$(".current_date").html(dat);
+
+        var tot = classes.length-1;
+        for(i=0;i< tot ;i++)
+         { 
+          getseats( dat,code,classes[i], $('#src').tokenInput("get")[0]['code'],$('#dest').tokenInput("get")[0]['code'],i+1,tot)
+
+         }
+
+      
+
+ });
+
+
+
+
+ $("body").on('click','.avail',function(){
+
+ NProgress.start();       
+
+$("#modal").fadeIn();
+
+$("#mask").fadeIn();
+
+dat =$('.datepicker').val();
+code = $(this).attr("code");
+
+        var str = "<div class='train_name'>"+$(this).attr("name")+" "+ $(this).attr("code")+"</div>";
+         
+         $("#modal_contents").html(str);
+       
+        classes = $(this).attr("coach");
+
+        classes = classes.split("-");
+
+          $("#modal_contents").append( "<div id='classes'><div><span class='prev_date'><img src='images/back_enabled_hover.png' /></span><span class='current_date'>"+dat+"</span><span class='next_date'><img src='images/forward_enabled_hover.png' /></span></div></div>");
+
+
+var table = "<table id='table_contents'><thead><td>Class</td><td>Availability</td><td>Fare</td></thead><tbody></tbody></table>";
+
+ $("#modal_contents").append(table);
+
+          var tot = classes.length-1;
+        for(i=0;i< tot ;i++)
+         { 
+
+    
+          $('#table_contents tr:last').after("<tr class="+classes[i]+"><td>"+classes[i]+"</td> <td class='avail'></td> <td class ='fare'></td></tr>");
+
+        getseats( dat,$(this).attr("code"),classes[i], $('#src').tokenInput("get")[0]['code'],$('#dest').tokenInput("get")[0]['code'],i+1,tot)
+        }
+      
+
+
+      
+
+
+        
+ });
+
+});
+
+
+function getseats(date,train,clas,src,dest,no,tot)
+{
+
+
+var selec = "#table_contents tr."+clas+" td.avail";
+var day = date.split('-')[2];
+var month = date.split('-')[1];
+
+  $.ajax({
+          type:"GET",
+          data:"src="+src+"&dest="+dest+"&day="+day+"&month="+month+"&train="+train+"&class="+clas,
+          url :"seatgetter.php",
+          success:function(data){
+              $(selec).html(data);
+
+
+            }
+
+        });
+
+var selec2 = "#table_contents tr."+clas+" td.fare";
+    $.ajax({
+          type:"GET",
+          data:"src="+src+"&dest="+dest+"&day="+day+"&month="+month+"&train="+train+"&class="+clas,
+          url :"faregetter.php",
+          success:function(data){
+              $(selec2).html(data);
+
+               NProgress.set(no/tot); 
+
+
+
+            }
+
+        });
+
+    if(no == tot)
+    {
+      NProgress.done();
+
+    }
+
+
+
+}
+
+
+
+$(".button_example").click(function(){
+
+ oTable.fnClearTable();
+
+var date = $('.datepicker').val();
+
+var src =  $('#src').tokenInput("get")[0]['code'];
+var dest = $('#dest').tokenInput("get")[0]['code'];
+var day = date.split('-')[2];
+var month = date.split('-')[1];
+
+fetchdetails(src,dest,day,month);
+
+
+});
+
+
+function fetchdetails(src,dest,day,month){
+
+NProgress.start();
+        $.ajax({
+          type:"GET",
+          data:"src="+src+"&dest="+dest+"&day="+day+"&month="+month,
+          url :"availgetter.php",
+          success:function(data){
+
+
+data = JSON.parse(data);
+
+
+            for (var i = data.length - 1; i >= 0; i--) {
+                  
+                  var coach ="";
+                    
+                  for (var j = 14; j< data[i].length ; j++) {
+                    coach += data[i][j]+"-";
+                  };
+
+
+                   $('#results_table').dataTable().fnAddData( [data[i][0],data[i][1],data[i][2],data[i][3],data[i][4],data[i][5],data[i][6],data[i][7]+data[i][8]+data[i][9]+data[i][10]+data[i][11]+data[i][12]+data[i][13],"<button type='button' class='avail' coach ='"+coach+"'code='"+data[i][0]+"' name='"+data[i][1]+"'>Get Avail</button>"]);
+
+           
+            };
+
+  NProgress.done();
+          }
+        
+
+       
+});
+
+    };
+
+
+
+
+function open_in_new_tab(url )
+{
+  var win=window.open(url, '_blank');
+  win.focus();
+}
+
+
+
+
+var vWidth  = $(window).width()
+  , vHeight = $(window).height();
+
+var modal = document.getElementById("modal");
+
+modal.style.left=(vWidth/2 - 250)+"px";
+modal.style.top=(vHeight/2 - 200)+"px";
+
+
+
+$("#modal_close").click(function(){
+
+      $("#modal_contents").html("");
+
+$("#modal").fadeOut();
+
+$("#mask").fadeOut();
+ // $("#modal").css("visibility","hidden");
+   //   $("#mask").css("visibility","hidden");
+
+});
+
+
+
+
+</script>
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-23619098-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+
+  </body>
+</html>
